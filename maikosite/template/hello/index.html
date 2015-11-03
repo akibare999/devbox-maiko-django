@@ -1,0 +1,34 @@
+{% load staticfiles %}
+<!doctype html>
+<html class="pageStyle">
+<head>
+<title>Hello World!</title>
+<link href="{% static "css/reset.css" %}" rel="stylesheet">
+<link href="{% static "css/orange.css" %}" rel="stylesheet">
+
+</head>
+<body>
+<div class="main">
+<h1>Hello World!</h1>
+<p>
+Hello, {{ request.META.eduPersonPrincipalName }}.
+Hope you're having a great day.
+<!-- Hello, {{ request.session.login }}. -->
+</p>
+<p>
+Here's a little picture of me: 
+<img src="{% static "images/hello/aso.gif" %}" alt="avatar"/>
+</p>
+<!--
+<p>
+Alternatively you can just <a href="{% url 'hello:logout' %}">logout</a>.
+</p>
+-->
+</div>
+<div class="footer">
+All content provided by Vegetable Securities, Inc.
+</div>
+</div>
+</body>
+</html>
+

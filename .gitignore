@@ -1,0 +1,10 @@
+*.csv
+*.pyc
+*.pyo
+*.gz
+*.rpm
+*.log
+*.conf
+*.secret
+*.swp
+*.users

@@ -1,0 +1,79 @@
+.pageStyle {
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    margin: 0 auto;
+    background-color: #ff9900;
+    height: 100%
+}
+body {
+    width: 900px;
+    background-color: white;
+    color: #505050;
+    font-size: 1em;
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    padding: 10px;
+    margin: 0 auto;
+    margin-bottom: 0
+    height: 100%;
+}
+h1 {
+    color: #ff6600;
+    font-size: 250%;
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    padding-bottom: 10px;
+}
+h2 {
+    color: #ff6600;
+    font-size: 150%;
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    padding-top: 5px;
+    border-bottom: solid 1px #ff6600;
+}
+p {
+    margin-left: 50px;
+    margin-bottom: 10px;
+}
+p.errorbox {
+    font-style: bold;
+    color:red;
+}
+td {
+    vertical-align: top;
+}
+ul.errorlist {
+    color: red;
+}
+ul.bullet {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+.formbox {
+    background-color: #ffcc99;
+    border: 1px solid #ff6600;
+    padding: 10px;
+    margin: 5px;
+}
+.formbox p {
+    padding: 0;
+    margin: 0;
+}
+.footer {
+    background-color: white;
+    font-size: 8px;
+    color: #003366;
+    border-top: 1px solid #003366;
+    text-transform: uppercase;
+    margin-bottom: 0
+}
+table.frink {
+    border: 1px solid #ff6600;
+    border-collapse: collapse;
+}
+td.frink {
+    border: 1px solid #ff6600;
+    padding: 3px;
+}
+th.frink {
+    border: 1px solid #ff6600;
+    padding: 3px;
+}
