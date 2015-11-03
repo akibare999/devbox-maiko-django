@@ -19,6 +19,15 @@ Hope you're having a great day.
 Here's a little picture of me: 
 <img src="{% static "images/hello/aso.gif" %}" alt="avatar"/>
 </p>
+<h2>Your Information</h2>
+<p>
+<table class='frink'>
+<tr><th class='frink'>Attribute</th><th class='frink'>Value</th></tr>
+{% for attr,value in request.META.items %}
+<tr><td class='frink'>{{ attr }}</td><td class='frink'>{{ value }}</td></tr>
+{% endfor %}
+</table>
+</p>
 <!--
 <p>
 Alternatively you can just <a href="{% url 'hello:logout' %}">logout</a>.
