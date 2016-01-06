@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import View, FormView, TemplateView
@@ -53,11 +53,11 @@ class LogoutView(View):
     @cache_control(no_cache=True, no_store=True)
     def dispatch(self, request, *args, **kwargs):
         super(LogoutView, self).dispatch(request, *args, **kwargs)
+
+        # Clear the local session
         request.session.flush()
 
-        response = render(request, 'hello/logout.html')
-        for cookie_name in request.COOKIES.keys():
-            response.delete_cookie(cookie_name)
-
-        return response
+        # Logout from the Shibboleth IDP (clear remote cookies)
+        # via standard redirect to /Shibboleth.sso/Logout
+        return redirect('/Shibboleth.sso/Logout')
 
