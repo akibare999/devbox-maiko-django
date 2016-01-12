@@ -17,6 +17,8 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from hello.views import HelloView
 
+from rest_framework import routers, serializers, viewsets
+
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
@@ -24,5 +26,8 @@ urlpatterns = [
 
     #url(r'^$', Hello.as_view(), name='hello'),
     url(r'^$', HelloView.as_view(), name='hello'),
+
+    # rest framework stuff
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 

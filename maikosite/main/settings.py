@@ -43,8 +43,11 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Third party
+    'rest_framework',
     # Add ours
     'hello',
+    'openCheezAI',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -119,3 +122,13 @@ STATICFILES_DIRS = (
     #os.path.join(PROJECT_ROOT_DIR, 'static'),
     '/home/maiko/django/maikosite/static',
 )
+
+# Rest framework stuff:
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
