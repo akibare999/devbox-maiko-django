@@ -23,7 +23,7 @@ Here's a little picture of me:
 <p>
 <table class='frink'>
 <tr><th class='frink'>Attribute</th><th class='frink'>Value</th></tr>
-{% for attr,value in request.META.items %}
+{% for attr,value in request.META.items|dictsort:"0.lower" %}
 <tr><td class='frink'>{{ attr }}</td><td class='frink'>{{ value }}</td></tr>
 {% endfor %}
 </table>
