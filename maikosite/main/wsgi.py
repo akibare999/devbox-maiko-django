@@ -25,6 +25,9 @@ SDGCollections.enable('python27', 'sdg_2015a_python27')
 del sys.path[1]
 sys.path.insert(0, PROJECT_ROOT_DIR)
 
+# path shenanigans -- put our local pip install dir second
+sys.path.insert(1,'/home/maiko/.local/lib/python2.7/site-packages')
+
 # Fire off the application.
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION

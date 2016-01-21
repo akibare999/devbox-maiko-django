@@ -13,6 +13,10 @@ import socket
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import sys
+sys.path.insert(0,'/home/maiko/.local/lib/python2.7/site-packages')
+
+import rest_framework
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -125,10 +129,10 @@ STATICFILES_DIRS = (
 
 # Rest framework stuff:
 
-REST_FRAMEWORK = {
+#REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
-}
+#   'DEFAULT_PERMISSION_CLASSES': [
+#       'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+#   ]
+#}
