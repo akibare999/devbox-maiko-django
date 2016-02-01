@@ -24,6 +24,8 @@ urlpatterns = [
 
     url('^hello/', include('hello.urls', namespace='hello')),
 
+    url('^openCheezAI/', include('openCheezAI.urls', namespace='openCheezAI')),
+
     #url(r'^$', Hello.as_view(), name='hello'),
     url(r'^$', HelloView.as_view(), name='hello'),
 

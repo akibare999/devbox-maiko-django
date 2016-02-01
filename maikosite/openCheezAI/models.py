@@ -5,17 +5,17 @@ from django.db import models
 class Person(models.Model):
     uin = models.CharField(max_length=9, primary_key=True)
 
-    uiuc_netid = models.CharField(max_length=8)
-    uic_netid = models.CharField(max_length=8)
-    uis_netid = models.CharField(max_length=8)
-    illinois_netid = models.CharField(max_length=8)
-    uillinois_netid = models.CharField(max_length=8)
+    uiuc_netid = models.CharField(max_length=8, blank=True)
+    uic_netid = models.CharField(max_length=8, blank=True)
+    uis_netid = models.CharField(max_length=8, blank=True)
+    illinois_netid = models.CharField(max_length=8, blank=True)
+    uillinois_netid = models.CharField(max_length=8, blank=True)
 
-    i2s_firstname = models.CharField(max_length=50)
-    i2s_lastname = models.CharField(max_length=50)
+    i2s_firstname = models.CharField(max_length=50, blank=True)
+    i2s_lastname = models.CharField(max_length=50, blank=True)
 
-    banner_firstname = models.CharField(max_length=50)
-    banner_lastname = models.CharField(max_length=50)
+    banner_firstname = models.CharField(max_length=50, blank=True)
+    banner_lastname = models.CharField(max_length=50, blank=True)
 
     banner_suppressed = models.BooleanField(default=False)
 
