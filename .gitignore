@@ -8,3 +8,4 @@
 *.secret
 *.swp
 *.users
+db.sqlite3
