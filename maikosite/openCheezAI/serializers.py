@@ -1,10 +1,15 @@
 from rest_framework import serializers
 from openCheezAI.models import Person
 
-class PersonSerializer(serializers.ModelSerializer):
+class PersonSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Person
+        url = serializers.HyperlinkedIdentityField(
+            view_name = 'person-detail',
+            lookup_field = 'uin'
+        )
         fields = ( 'uin', 
+                   'url',
                    'uiuc_netid', 
                    'uic_netid', 
                    'uis_netid', 
