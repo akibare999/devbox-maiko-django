@@ -10,7 +10,14 @@ urlpatterns = [
     url(r'^persons/(?P<pk>[0-9]+)$',
         views.PersonDetail.as_view(),
         name='person-detail'),
+
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
 
+urlpatterns.append(
+    url(r'^soap/$',
+        #views.SoapHandlerView.as_view(),
+        views.soap_handler_view,
+        name='soap-handler'),
+)
