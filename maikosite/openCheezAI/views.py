@@ -1,4 +1,7 @@
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.views.generic.base import TemplateView, View
 
 from openCheezAI.models import Person
 from openCheezAI.serializers import PersonSerializer
@@ -53,6 +56,35 @@ def api_root(request, format=None):
 
 @api_view(['POST'])
 def soap_handler_view(request, format=None):
+    '''
+    Just print crud for now...
+    '''
+    if request.method == 'POST':
+        function_call = soapStringToFunctionCall(request.body)
+        return HttpResponse('you called SOAP POST with: ' + function_call)
+
+class SoapHandlerView(TemplateView):
+    '''
+    TemplateView based SOAP view
+    '''
+    http_method_names = ['post']
+
+    @csrf_exempt
+    def dispatch(self, request, *args, **kwargs):
+        '''
+        Turn off CSRF because we're using this for an API (post only).
+        '''
+        return super(SoapHandlerView, self).dispatch(request, *args, **kwargs)
+    
+    def post(self, request):
+        '''
+        Just print the desired function call for now.
+        '''
+        function_call = soapStringToFunctionCall(request.body)
+        return HttpResponse('you called SOAP POST with: ' + function_call)
+
+
+def soap_handler_template_view(request, format=None):
     '''
     Just print crud for now...
     '''

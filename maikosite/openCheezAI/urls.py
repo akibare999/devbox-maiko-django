@@ -21,3 +21,8 @@ urlpatterns.append(
         views.soap_handler_view,
         name='soap-handler'),
 )
+urlpatterns.append(
+    url(r'^soap2/$',
+        views.SoapHandlerView.as_view(),
+        name='soap-handler-2'),
+)
