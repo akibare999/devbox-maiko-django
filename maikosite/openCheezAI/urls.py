@@ -17,12 +17,6 @@ urlpatterns = format_suffix_patterns(urlpatterns)
 
 urlpatterns.append(
     url(r'^soap/$',
-        #views.SoapHandlerView.as_view(),
-        views.soap_handler_view,
-        name='soap-handler'),
-)
-urlpatterns.append(
-    url(r'^soap2/$',
         views.SoapHandlerView.as_view(),
         name='soap-handler-2'),
 )
