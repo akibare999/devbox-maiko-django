@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic.base import TemplateView, View
@@ -63,11 +64,13 @@ def soap_handler_view(request, format=None):
         function_call = soapStringToFunctionCall(request.body)
         return HttpResponse('you called SOAP POST with: ' + function_call)
 
-class SoapHandlerView(TemplateView):
+class SoapHandlerView(View):
     '''
     TemplateView based SOAP view
     '''
     http_method_names = ['post']
+
+    template_name = "openCheezAI/function.html"
 
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
@@ -80,9 +83,15 @@ class SoapHandlerView(TemplateView):
         '''
         Just print the desired function call for now.
         '''
+        # self.request.session['foo'] = "bar"
         function_call = soapStringToFunctionCall(request.body)
-        return HttpResponse('you called SOAP POST with: ' + function_call)
-
+        self.request.session['function_call'] = function_call
+        return (render_to_response('openCheezAI/function.html', 
+                                  {'function_call' : function_call},
+                                  content_type='application/xml'
+                                  ))
+        #return HttpResponse('you called SOAP POST with: ' + function_call)
+ 
 
 def soap_handler_template_view(request, format=None):
     '''
@@ -119,7 +128,9 @@ def soap_handler_template_view(request, format=None):
 #-------------------------------------------------------------------------------
 
 def soapStringToFunctionCall(soapString):
-
+    
+    if not soapString:
+        return "No function called."
     # Create tree.
 
     tree = ET.ElementTree(ET.fromstring(soapString))
