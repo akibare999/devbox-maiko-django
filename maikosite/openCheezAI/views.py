@@ -130,16 +130,16 @@ class SoapHandlerView(View):
                 netid_in_use = 0
                 people =  Person.objects.filter(uillinois_netid=netid)
                 people |=  Person.objects.filter(illinois_netid=netid)
-                people |=  Person.objects.filter(uiuc=netid)
-                people |=  Person.objects.filter(uic=netid)
-                people |=  Person.objects.filter(uis=netid)
+                people |=  Person.objects.filter(uiuc_netid=netid)
+                people |=  Person.objects.filter(uic_netid=netid)
+                people |=  Person.objects.filter(uis_netid=netid)
                 if people:
                     netid_in_use = 1
-                    return (render_to_response(
-                              'openCheezAI/get_netid_assignment.xml',
-                                  {'netid_in_use': netid_in_use},
-                                  content_type='application/xml'
-                                  ))
+                return (render_to_response(
+                          'openCheezAI/netid_in_use.xml',
+                              {'netid_in_use': netid_in_use},
+                              content_type='application/xml'
+                              ))
 
 #           # GetBasicPerson(UIN)
 #           elif function == 'GetBasicPerson':
