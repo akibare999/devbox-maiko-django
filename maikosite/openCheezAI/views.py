@@ -57,7 +57,7 @@ def api_root(request, format=None):
 
 class SoapHandlerView(View):
     '''
-    TemplateView based SOAP view
+    Generic View based SOAP view. Accept POST only, return XML.
     '''
     http_method_names = ['post']
 
@@ -73,21 +73,16 @@ class SoapHandlerView(View):
     @csrf_exempt
     def post(self, request, *args, **kwargs):
         '''
-        Just print the desired function call for now.
+        (1) Parse the incoming SOAP (request.body) into a function call
+        (2) Implement a version of the call against the openCheezAI db
+            (Person objects)
+        (3) Return a precooked "SOAP" xml template with the relevant
+            values filled in from the Person fields.
         '''
-        _LOGGER.debug("in post method")
 
         try:
-            # Logic here
+            # Parse the incoming soap to get a [function, [args]]
             function, args = soap_string_to_function_call(request.body)
-            _LOGGER.debug("calling SOAP parse now")
-
-#           return (render_to_response('openCheezAI/function.html', 
-#                                 {'function_call' : function},
-#                                 content_type='application/xml'
-#                                 ))
-
-            _LOGGER.debug("in post, got function %s " % (function))
 
             # GetNetidAssignment(UIN)
             if function == 'GetNetidAssignment':
@@ -123,7 +118,6 @@ class SoapHandlerView(View):
                                   content_type='application/xml'
                                   ))
 
-
             # NetidInUse(NetID)
             elif function == 'NetidInUse':
                 netid = args[0]
@@ -141,38 +135,161 @@ class SoapHandlerView(View):
                               content_type='application/xml'
                               ))
 
-#           # GetBasicPerson(UIN)
-#           elif function == 'GetBasicPerson':
-#               uin = args[0]
-#
-#           # GetInstitutionalIdentity(UIN)
-#           elif function == 'GetInstitutionalIdentity':
-#               uin = args[0]
-#
-#           # AssignNetid(UIN, campus.edu)
-#           elif function == 'AssignNetid':
-#               uin = args[0]
-#               campus = args[1]
-#               campus = campus[0:-4] # remove trailing ".edu"
+            # GetBasicPerson(UIN)
+            elif function == 'GetBasicPerson':
+                uin = args[0]
+                try:
+                    p = Person.objects.get(uin=uin)
+                    local_context = {}
+                    # TODO: Add banner_middlename to Person model
+                    local_context['banner_middlename'] = 'X'
+                    local_context['banner_firstname'] = p.banner_firstname
+                    local_context['banner_lastname'] = p.banner_lastname
+                    if p.banner_suppressed:
+                        local_context['banner_suppressed'] = \
+                        '<confidential xsi:type="xsd:string">Y</confidential>'
+
+                    return (render_to_response(
+                              'openCheezAI/get_basic_person.xml',
+                                  local_context,
+                                  content_type='application/xml'
+                                  ))
+
+                except Person.DoesNotExist as e:
+                    # Banner SOAP call returns a 500 for Not Found,
+                    # so we mimic this (less than great!) behavior
+                    raise Exception("No Basic Person Found for UIN %s " %
+                                     uin)
+
+            # GetInstitutionalIdentity(UIN)
+            elif function == 'GetInstitutionalIdentity':
+                uin = args[0]
+                try:
+                    p = Person.objects.get(uin=uin)
+                    local_context = {}
+                    # TODO: Add i2s_middlename to Person model
+                    local_context['i2s_middlename'] = 'X'
+                    local_context['i2s_firstname'] = p.banner_firstname
+                    local_context['i2s_lastname'] = p.banner_lastname
+
+                    return (render_to_response(
+                              'openCheezAI/get_institutional_identity.xml',
+                                  local_context,
+                                  content_type='application/xml'
+                                  ))
+
+                except Person.DoesNotExist as e:
+                    # GetInstitutionalIdentity SOAP call returns a 500 for Not 
+                    # Found, so we mimic this (less than great!) behavior
+                    raise Exception("No InstitutionalIdentity Found for \
+                                     UIN %s " % uin)
+ 
+            # AssignNetid(UIN, campus.edu)
+            # TODO: Check the actual return XML for this (in dev or somewhere)
+            elif function == 'AssignNetid':
+                uin = args[0]
+                netid = args[1]
+                campus = args[2]
+                try:
+                    p = Person.objects.get(uin=uin)
+                except Person.DoesNotExist as e:
+                        # Can't set netid for non-existent user
+                        raise Exception("No user found with uin %s" % uin)
+
+                if campus == 'uillinois.edu':
+                    # Make sure that there is no conflict in assignment.
+                    conflicts =  Person.objects.filter(uillinois_netid=netid)
+                    if conflicts:
+                        raise Exception("netid %s already assigned at \
+                              uillinois.edu to UIN %s" % (netid, uin))
+                    try:
+                        p.uillinois_netid = netid
+                        p.save()
+                    except Exception as e:
+                        # Something went wrong in set
+                        raise Exception("Unable to assign netid %s to \
+                                        uin %s for uillinois.edu: %s" %
+                                        (netid, uin, str(e)))
+                        
+                elif campus == 'illinois.edu':
+                    # Make sure that there is no conflict in assignment.
+                    conflicts =  Person.objects.filter(illinois_netid=netid)
+                    if conflicts:
+                        raise Exception("netid %s already assigned at \
+                              illinois.edu to UIN %s" % (netid, uin))
+                    try:
+                        p.illinois_netid = netid
+                        p.save()
+                    except Exception as e:
+                        # Something went wrong in set
+                        raise Exception("Unable to assign netid %s to \
+                                        uin %s for illinois.edu: %s" %
+                                        (netid, uin, str(e)))
+                        
+                elif campus == 'uiuc.edu':
+                    # Make sure that there is no conflict in assignment.
+                    conflicts =  Person.objects.filter(uiuc_netid=netid)
+                    if conflicts:
+                        raise Exception("netid %s already assigned at \
+                              uiuc.edu to UIN %s" % (netid, uin))
+                    try:
+                        p.uiuc_netid = netid
+                        p.save()
+                    except Exception as e:
+                        # Something went wrong in set
+                        raise Exception("Unable to assign netid %s to \
+                                        uin %s for uiuc.edu: %s" %
+                                        (netid, uin, str(e)))
+                        
+                elif campus == 'uic.edu':
+                    # Make sure that there is no conflict in assignment.
+                    conflicts =  Person.objects.filter(uic_netid=netid)
+                    if conflicts:
+                        raise Exception("netid %s already assigned at \
+                              uic.edu to UIN %s" % (netid, uin))
+                    try:
+                        p.uic_netid = netid
+                        p.save()
+                    except Exception as e:
+                        # Something went wrong in set
+                        raise Exception("Unable to assign netid %s to \
+                                        uin %s for uic.edu: %s" %
+                                        (netid, uin, str(e)))
+                        
+                elif campus == 'uis.edu':
+                    # Make sure that there is no conflict in assignment.
+                    conflicts =  Person.objects.filter(uis_netid=netid)
+                    if conflicts:
+                        raise Exception("netid %s already assigned at \
+                              uis.edu to UIN %s" % (netid, uin))
+                    try:
+                        p.uis_netid = netid
+                        p.save()
+                    except Exception as e:
+                        # Something went wrong in set
+                        raise Exception("Unable to assign netid %s to \
+                                        uin %s for uis.edu: %s" %
+                                        (netid, uin, str(e)))
+                        
+                else:
+                    raise Exception("Unable to assign netid %s to \
+                                    uin %s for unknown campus %s" %
+                                    (netid, uin, campus))
+
+                # If everything went ok, return generic XML response.
+                return(render_to_response(
+                          'openCheezAI/assign_netid.xml',
+                           {},
+                           content_type='application/xml'
+                           ))
 
             # Anything else, we error out.
             else:
-                raise Exception("Didn't get a good function")
-                #return(HttpResponseServerError)
+                raise Exception("Unknown function %s sent to openCheezAI \
+                                SOAP" % function)
 
         except Exception as e:
-            raise Exception("something barfed:" + e.message)
-            # Default, return 500
-            #return(HttpResponseServerError)
-
-
-#       # self.request.session['foo'] = "bar"
-#       function_call = soapStringToFunctionCall(request.body)
-#       self.request.session['function_call'] = function_call
-#       return (render_to_response('openCheezAI/function.html', 
-#                                 {'function_call' : function_call},
-#                                 content_type='application/xml'
-#                                 ))
+            raise Exception("openCheezAI SOAP failure: " + e.message)
  
 #-------------------------------------------------------------------------------
 # UTILITY FUNCTIONS
@@ -217,33 +334,4 @@ def soap_string_to_function_call(soap_string):
     args = [arg.text for arg in function.getchildren()]
 
     return [function_name, args]
-
-def soapStringToFunctionCallString(soapString):
-    
-    if not soapString:
-        return "No function called."
-    # Create tree.
-
-    tree = ET.ElementTree(ET.fromstring(soapString))
-
-    root = tree.getroot()
-
-    # Can find the body directly because we know the namespace
-    # won't change, so just hardcode it
-    body = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Body')
-
-    # Function is the singleton child of the body, always
-    # Kill the namespace because we don't care about it and it 
-    # changes based on server.
-    function = body.getchildren()[0]
-    function_name = function.tag
-    function_name = re.sub('{.*}','',function_name)
-
-    # Args are the children of the function, they are anonymous args
-    args = [arg.text for arg in function.getchildren()]
-
-    # Print the results!
-    args.insert(0, function_name)
-
-    return ' '.join(args)
 
