@@ -14,10 +14,15 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework import renderers
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseServerError
 
 import xml.etree.ElementTree as ET
 import re
+import logging
+import datetime
+
+_LOGGER = logging.getLogger(__name__)
+
 
 # Create your views here.
 
@@ -50,20 +55,6 @@ def api_root(request, format=None):
 # CHEEZY SOAP VIEWS
 #-------------------------------------------------------------------------------
 
-# Make a cheesy functional view so that no CSRF is required but also 
-# no serializer required because this is cheez.
-# Question: Would there be some way to build the soapStringToFunction
-# thingy into a serializer? 
-
-@api_view(['POST'])
-def soap_handler_view(request, format=None):
-    '''
-    Just print crud for now...
-    '''
-    if request.method == 'POST':
-        function_call = soapStringToFunctionCall(request.body)
-        return HttpResponse('you called SOAP POST with: ' + function_call)
-
 class SoapHandlerView(View):
     '''
     TemplateView based SOAP view
@@ -79,55 +70,155 @@ class SoapHandlerView(View):
         '''
         return super(SoapHandlerView, self).dispatch(request, *args, **kwargs)
     
-    def post(self, request):
+    @csrf_exempt
+    def post(self, request, *args, **kwargs):
         '''
         Just print the desired function call for now.
         '''
-        # self.request.session['foo'] = "bar"
-        function_call = soapStringToFunctionCall(request.body)
-        self.request.session['function_call'] = function_call
-        return (render_to_response('openCheezAI/function.html', 
-                                  {'function_call' : function_call},
+        _LOGGER.debug("in post method")
+
+        try:
+            # Logic here
+            function, args = soap_string_to_function_call(request.body)
+            _LOGGER.debug("calling SOAP parse now")
+
+#           return (render_to_response('openCheezAI/function.html', 
+#                                 {'function_call' : function},
+#                                 content_type='application/xml'
+#                                 ))
+
+            _LOGGER.debug("in post, got function %s " % (function))
+
+            # GetNetidAssignment(UIN)
+            if function == 'GetNetidAssignment':
+                uin = args[0]
+                try:
+                    p = Person.objects.get(uin=uin)
+                    local_context = {}
+                    if (p.uillinois_netid):
+                        local_context['uillinois_netid'] = '<uillinois.edu>' +\
+                                     p.uillinois_netid + '</uillinois.edu>'
+                    if (p.illinois_netid):
+                        local_context['illinois_netid'] = '<illinois.edu>' +\
+                                     p.illinois_netid + '</illinois.edu>'
+                    if (p.uiuc_netid):
+                        local_context['uiuc_netid'] = '<uiuc.edu>' +\
+                                     p.uiuc_netid + '</uiuc.edu>'
+                    if (p.uic_netid):
+                        local_context['uic_netid'] = '<uic.edu>' +\
+                                     p.uic_netid + '</uic.edu>'
+                    if (p.uis_netid):
+                        local_context['uis_netid'] = '<uis.edu>' +\
+                                     p.uis_netid + '</uis.edu>'
+                    return (render_to_response(
+                              'openCheezAI/get_netid_assignment.xml',
+                                  local_context,
                                   content_type='application/xml'
                                   ))
-        #return HttpResponse('you called SOAP POST with: ' + function_call)
+
+                except Person.DoesNotExist as e:
+                    return (render_to_response(
+                              'openCheezAI/get_netid_assignment_not_found.xml',
+                                  {},
+                                  content_type='application/xml'
+                                  ))
+
+
+            # NetidInUse(NetID)
+            elif function == 'NetidInUse':
+                netid = args[0]
+                netid_in_use = 0
+                people =  Person.objects.filter(uillinois_netid=netid)
+                people |=  Person.objects.filter(illinois_netid=netid)
+                people |=  Person.objects.filter(uiuc=netid)
+                people |=  Person.objects.filter(uic=netid)
+                people |=  Person.objects.filter(uis=netid)
+                if people:
+                    netid_in_use = 1
+                    return (render_to_response(
+                              'openCheezAI/get_netid_assignment.xml',
+                                  {'netid_in_use': netid_in_use},
+                                  content_type='application/xml'
+                                  ))
+
+#           # GetBasicPerson(UIN)
+#           elif function == 'GetBasicPerson':
+#               uin = args[0]
+#
+#           # GetInstitutionalIdentity(UIN)
+#           elif function == 'GetInstitutionalIdentity':
+#               uin = args[0]
+#
+#           # AssignNetid(UIN, campus.edu)
+#           elif function == 'AssignNetid':
+#               uin = args[0]
+#               campus = args[1]
+#               campus = campus[0:-4] # remove trailing ".edu"
+
+            # Anything else, we error out.
+            else:
+                raise Exception("Didn't get a good function")
+                #return(HttpResponseServerError)
+
+        except Exception as e:
+            raise Exception("something barfed:" + e.message)
+            # Default, return 500
+            #return(HttpResponseServerError)
+
+
+#       # self.request.session['foo'] = "bar"
+#       function_call = soapStringToFunctionCall(request.body)
+#       self.request.session['function_call'] = function_call
+#       return (render_to_response('openCheezAI/function.html', 
+#                                 {'function_call' : function_call},
+#                                 content_type='application/xml'
+#                                 ))
  
-
-def soap_handler_template_view(request, format=None):
-    '''
-    Just print crud for now...
-    '''
-    if request.method == 'POST':
-        function_call = soapStringToFunctionCall(request.body)
-        return HttpResponse('you called SOAP POST with: ' + function_call)
-
-# Basic view accepting a POST which will just print the function called
-
-#class SoapHandlerView(generics.GenericAPIView):
-    #template_name = 'openCheezAI/function_detail.html'
-
-#   def get_serializer_class(self):
-#       return None 
-#
-#   def post(self, request, format=None):
-#       '''
-#       Get the SOAP xml from the post body, convert to a function
-#       call, and print the call for reference.
-#       '''
-#       soapString = request.body
-#       function_call = soapStringToFunctionCall(soapString)
-#       context['function_call'] = soapStringToFunctionCall(soapString)
-#       #return HttpResponse(function_call)
-#       return Response('you called SOAP POST')
-
-#   def get(self, request, format=None):
-#       return Response('you called SOAP GET, BABY!!')
-#
 #-------------------------------------------------------------------------------
 # UTILITY FUNCTIONS
 #-------------------------------------------------------------------------------
 
-def soapStringToFunctionCall(soapString):
+def soap_string_to_function_call(soap_string):
+    '''
+    Converts the SOAP received from TDI into a "function call" 
+    we can take action on.
+    Arguments:
+        (1) soapString - full BODY of the POST request received
+    Returns:
+        (1) List: [ function [ args] ] 
+    Throws:
+        Any kind of exceptions - we catch general exceptions in the
+        caller and raise a 500 from there.
+
+    '''
+    
+    if not soap_string:
+        return ['no_function',[]]
+
+    # Create tree.
+
+    tree = ET.ElementTree(ET.fromstring(soap_string))
+
+    root = tree.getroot()
+
+    # Can find the body directly because we know the namespace
+    # won't change, so just hardcode it
+    body = root.find('{http://schemas.xmlsoap.org/soap/envelope/}Body')
+
+    # Function is the singleton child of the body, always
+    # Kill the namespace because we don't care about it and it 
+    # changes based on server.
+    function = body.getchildren()[0]
+    function_name = function.tag
+    function_name = re.sub('{.*}','',function_name)
+    _LOGGER.debug("IN PARSER: function is: %s" % function_name)
+
+    # Args are the children of the function, they are anonymous args
+    args = [arg.text for arg in function.getchildren()]
+
+    return [function_name, args]
+
+def soapStringToFunctionCallString(soapString):
     
     if not soapString:
         return "No function called."
