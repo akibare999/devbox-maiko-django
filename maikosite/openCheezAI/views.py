@@ -108,14 +108,14 @@ class SoapHandlerView(View):
                     return (render_to_response(
                               'openCheezAI/get_netid_assignment.xml',
                                   local_context,
-                                  content_type='application/xml'
+                                  content_type='text/xml; charset=UTF-8'
                                   ))
 
                 except Person.DoesNotExist as e:
                     return (render_to_response(
                               'openCheezAI/get_netid_assignment_not_found.xml',
                                   {},
-                                  content_type='application/xml'
+                                  content_type='text/xml; charset=UTF-8'
                                   ))
 
             # NetidInUse(NetID)
@@ -132,7 +132,7 @@ class SoapHandlerView(View):
                 return (render_to_response(
                           'openCheezAI/netid_in_use.xml',
                               {'netid_in_use': netid_in_use},
-                              content_type='application/xml'
+                              content_type='text/xml; charset=UTF-8'
                               ))
 
             # GetBasicPerson(UIN)
@@ -152,7 +152,7 @@ class SoapHandlerView(View):
                     return (render_to_response(
                               'openCheezAI/get_basic_person.xml',
                                   local_context,
-                                  content_type='application/xml'
+                                  content_type='text/xml; charset=UTF-8'
                                   ))
 
                 except Person.DoesNotExist as e:
@@ -175,7 +175,7 @@ class SoapHandlerView(View):
                     return (render_to_response(
                               'openCheezAI/get_institutional_identity.xml',
                                   local_context,
-                                  content_type='application/xml'
+                                  content_type='text/xml; charset=UTF-8'
                                   ))
 
                 except Person.DoesNotExist as e:
@@ -280,7 +280,7 @@ class SoapHandlerView(View):
                 return(render_to_response(
                           'openCheezAI/assign_netid.xml',
                            {},
-                           content_type='application/xml'
+                           content_type='text/xml; charset=UTF-8'
                            ))
 
             # Anything else, we error out.
