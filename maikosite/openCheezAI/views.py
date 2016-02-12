@@ -37,6 +37,27 @@ class PersonList(generics.ListCreateAPIView):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
 
+    def get_queryset(self):
+        '''
+        Override to provide some search functionality
+        (want to search for all owners of a NetID anywhere)
+        '''
+
+        # Default is all Persons, as usual
+        queryset = Person.objects.all()
+
+        # If we got a netid parameter on the querystring, search
+        # by that ("OR" of netid lookup on all campuses)
+        netid = self.request.query_params.get('netid',None)
+        if netid is not None:
+            queryset =  Person.objects.filter(uillinois_netid=netid)
+            queryset |=  Person.objects.filter(illinois_netid=netid)
+            queryset |=  Person.objects.filter(uiuc_netid=netid)
+            queryset |=  Person.objects.filter(uic_netid=netid)
+            queryset |=  Person.objects.filter(uis_netid=netid)
+            
+        return queryset
+
 
 class PersonDetail(generics.RetrieveUpdateDestroyAPIView):
     '''
