@@ -13,5 +13,9 @@ Feature: Create a user
 	| i2s_firstname		| Robert	|
 	| i2s_lastname		| Oppenheimer	|
   
-	#Then
+	Given person exists in openCheezAI
+
+	# When we run some thing
+
+	Then person has...
 
