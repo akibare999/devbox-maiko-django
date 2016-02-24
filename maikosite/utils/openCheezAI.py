@@ -82,7 +82,10 @@ class openCheezAICaller:
         '''
         url = self.API_BASE_URL + 'persons/' + uin
         resp = requests.delete(url)
+        if resp.status_code == 404:
+            return None
         resp.raise_for_status()
+        return None
 
     def delete_persons_by_netid(self, netid):
         '''
