@@ -28,6 +28,12 @@ class openCheezAICaller:
     # Get multiple should return a list of dictionaries
     # Get single should return a single dictionary
 
+    def get_blank_person_template(self):
+        '''
+        Get a "default" blank person with no fields set
+        '''
+        return self.BLANK_PERSON_DICT
+
     def get_person_by_uin(self, uin):
         '''
         Retrieve the single Person object (JSON blobs) with UIN uin
