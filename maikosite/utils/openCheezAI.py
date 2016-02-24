@@ -34,6 +34,8 @@ class openCheezAICaller:
         '''
         url = self.API_BASE_URL + 'persons/' + uin
         resp = requests.get(url)
+        if resp.status_code == 404:
+            return None
         resp.raise_for_status()
         return resp.json()
 
@@ -82,7 +84,7 @@ class openCheezAICaller:
         resp = requests.delete(url)
         resp.raise_for_status()
 
-    def delete_persons(self, netid):
+    def delete_persons_by_netid(self, netid):
         '''
         Delete all Persons with the NetID of netid (for any campus).
         First call get_persons_by_netid, then troll through the returned
@@ -91,7 +93,7 @@ class openCheezAICaller:
         '''
         people = self.get_persons_by_netid(netid)
         for person in people:
-            url = self.API_BASE_URL + person['uin']
+            url = self.API_BASE_URL + 'persons/' + person['uin']
             resp = requests.delete(url)
             resp.raise_for_status()
 
