@@ -10,7 +10,11 @@ sys.path.insert(0, PROJECT_ROOT_DIR)
 from behave import given, then
 from utils.openCheezAI import openCheezAICaller
 
-@given(u"person '{uin}' is reset in openCheezAI")
+_LOGGER = logging.getLogger('test')
+logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
+_LOGGER.setLevel(logging.DEBUG)
+
+@given(u"person {uin} is reset in openCheezAI")
 def reset_person(context, uin):
     # clear out person from openCheezAI
     c = openCheezAICaller()
@@ -39,37 +43,26 @@ def add_to_openCheezAI(context):
 
 @then(u'person {uin} exists in openCheezAI with attribute values')
 def confirm_openCheezAI_attrs(context, uin):
-    # clear out person from openCheezAI
+    # retrieve person from openCheezAI
     c = openCheezAICaller()
     person = c.get_person_by_uin(uin)
 
+    # check attributes
     for row in context.table:
         attr = row['attr']
         value = row['value']
-        attr = attr.encode('ascii', 'ignore')
-        value = value.encode('ascii', 'ignore')
-        context.person[attr] = value
+        assert attr in person, "Has key %s." % attr
+        assert (person[attr] == value), "%s == %s" % (attr, value)
 
-@then('person {uin} has {attr} set to {value} in openCheezAI')
+
+@then(u'person {uin} has {attr} set to {value} in openCheezAI')
 def has_openCheezAI_value(context, uin, attr, value):
 
+    # retrieve person from openCheezAI
+    c = openCheezAICaller()
+    person = c.get_person_by_uin(uin)
+
+    assert attr in person, "Has key %s." % attr
+    assert (person[attr] == value), "%s == %s" % (attr, value)
 #====
 
-@then('user has {attr} set to {value} in Central Registry')
-def has_central_registry_value(context, attr, value):
-    attr = attr.encode('ascii', 'ignore')
-    value = value.encode('ascii', 'ignore')
-
-    conn = _get_cr_conn()
-    kwargs = {
-        # 'ldap_filter':'dn={}'.format(context.dn),
-        'ldap_filter':'uiucEduNetID=%s' % context.net_id,
-        'attr_list':[attr],
-    }
-    # _LOGGER.debug("LDAP lookup args: {}".format(kwargs))
-    result = conn.lookup(**kwargs)
-    # assert len(result) == 1, "{} results.".format(len(result))
-    record = result[0]
-    # _LOGGER.debug("CR Lookup result: {}".format(result))
-    assert attr in record, "Has key %s." % attr
-    assert (record[attr] == value), "%s == %s" % (attr, value)

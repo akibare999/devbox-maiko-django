@@ -1,7 +1,7 @@
 Feature: Create a user
 
     Scenario: basic setup
-        Given person '111111111' is reset in openCheezAI
+        Given person 111111111 is reset in openCheezAI
 	Given person has openCheezAI attribute values
         | attr                  | value 	|
         # ---------------------------------------
@@ -17,5 +17,15 @@ Feature: Create a user
 
 	# When we run some thing
 
-	Then person has...
+	Then person 111111111 has uiuc_netid set to bobbo in openCheezAI
 
+	Then person 111111111 exists in openCheezAI with attribute values
+        | attr                  | value 	|
+        # ---------------------------------------
+        | uiuc_netid            | bobbo 	|
+	| illinois_netid	| bobbo		|
+	| uillinois_netid	| robert	|
+	| banner_firstname	| Robert	|
+	| banner_lastname	| Oppenheimer	|
+	| i2s_firstname		| Robert	|
+	| i2s_lastname		| Oppenheimer	|
