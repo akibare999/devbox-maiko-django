@@ -1,6 +1,6 @@
 Feature: Create a user
 
-    Scenario: basic setup
+    Scenario: basic setup in openCheezAI
         Given person 111111111 is reset in openCheezAI
 	Given person has openCheezAI attribute values
         | attr                  | value 	|
@@ -29,3 +29,11 @@ Feature: Create a user
 	| banner_lastname	| Oppenheimer	|
 	| i2s_firstname		| Robert	|
 	| i2s_lastname		| Oppenheimer	|
+
+    Scenario: basic setup in Central Registry
+    	Given user 'bobbo' is reset in Central Registry
+	Given user has uiucEduUIN set to 111111111
+	Given user has person in uiucEduType
+	Given user has phone in uiucEduType
+	Given user has student in uiucEduType
+	Given user exists in Central Registry
