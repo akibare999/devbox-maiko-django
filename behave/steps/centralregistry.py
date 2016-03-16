@@ -75,6 +75,35 @@ def _reset_user(netid, context):
     set_attr_value(context, attr='cn', value=netid)
     _LOGGER.debug("Attributes: %s", context.attrs)
 
+def _delete_uin(uin):
+    ''' 
+    Remove the user with given UIN from Central Registry, if they exist.
+    Do NOT make a stub user for later (stubs should always start with
+    a NetID, using _reset_user(netid, context).
+    This does NOT affect the context.
+    '''
+    conn = _get_cr_conn()
+    result = conn.lookup_by_uin(uin)
+
+    if result:
+        _LOGGER.info("Cleaning up %s existing entries.", len(result))
+        for entry in result:
+            #_LOGGER.info("Cleaning up entry: {}".format(str(entry)))
+            dn, _ = entry
+            # _LOGGER.info("The rest: {}".format(str(the_rest)))
+            _LOGGER.info("Removing %s from CR.", dn)
+            result = conn.connection.delete_s(dn)
+            # Behave swallows the last log output...
+            # _LOGGER.info("Remove Result: {}".format(result))
+            # _LOGGER.info("Removed {} from CR.".format(dn))
+            # _LOGGER.info("Behave log swallog bug gone?")
+    else:
+        _LOGGER.info("No entries in CR match config file uin")
+
+@given(u"uin {uin} does not exist in Central Registry")
+def delete_uin_user(context, uin):
+    _delete_uin(uin)
+
 @given(u"user '{netid}' is reset in Central Registry")
 def reset_netid_user(context, netid):
     _reset_user(netid, context)
