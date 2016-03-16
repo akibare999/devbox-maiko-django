@@ -24,6 +24,11 @@ def reset_person(context, uin):
     context.person = c.get_blank_person_template()
     context.person['uin'] = uin
 
+@given(u"netid '{netid}' is not assigned in openCheezAI")
+def delete_all_by_netid(context, netid):
+    # clear out person from openCheezAI
+    c = openCheezAICaller()
+    c.delete_persons_by_netid(netid)
 
 @given(u'person has openCheezAI attribute values')
 def openCheezAI_attrs(context):
@@ -66,3 +71,4 @@ def has_openCheezAI_value(context, uin, attr, value):
     assert (person[attr] == value), "%s == %s" % (attr, value)
 #====
 
+#def delete_persons_by_netid(self, netid):
