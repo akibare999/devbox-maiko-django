@@ -15,8 +15,8 @@ from requests.auth import HTTPBasicAuth
 import xml.etree.ElementTree as ET
 
 _LOGGER = logging.getLogger('test')
-logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
-_LOGGER.setLevel(logging.DEBUG)
+logging.basicConfig(filename='debug.log', filemode='w', level=logging.WARN)
+_LOGGER.setLevel(logging.WARN)
 
 def _call_getNetIDForUINAL(querystring_hash):
     '''

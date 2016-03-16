@@ -26,8 +26,8 @@ from test_settings import DEFAULT_ATTRS
 import test_settings as settings
 
 _LOGGER = logging.getLogger('test')
-# _LOGGER.setLevel(logging.INFO)
-_LOGGER.setLevel(logging.DEBUG)
+# _LOGGER.setLevel(logging.WARN)
+_LOGGER.setLevel(logging.WARN)
 
 # ===================
 # Handlers

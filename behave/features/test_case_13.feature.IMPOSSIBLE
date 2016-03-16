@@ -1,0 +1,32 @@
+Feature: getNetIDForUINAL (ERROR CASE)
+
+#================
+    Scenario: Test Case 13: STUDENT not in CR, not in EAS, force NetID generation, name too common so fails
+
+	# Setup: Add person upstream (openCheezAI)
+        Given person 222222222 is reset in openCheezAI
+	Given person has openCheezAI attribute values
+        | attr                  | value 	|
+        # ---------------------------------------
+	| banner_firstname	| S  		|
+	| banner_lastname	| K  		|
+	| i2s_firstname		| S  		|
+	| i2s_lastname		| K  		|
+  
+	Given person exists in openCheezAI
+
+	# Setup: Make sure UIN not found in Central Registry
+	Given uin 222222222 does not exist in Central Registry
+
+	# Test: call getNetIDForUINAL
+	When getNetIDForUINAL is called with arguments
+        | attr                  | value 	|
+        # ---------------------------------------
+        | uin                   | 222222222 	|
+	| firstName		| S		|
+	| lastName		| K		|
+	| type			| E		|
+        | createNetIDIfNotFound | true	        |
+	| testMode		| false		|
+
+	Then getNetIDForUINAL fails with error code 501

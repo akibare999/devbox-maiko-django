@@ -11,8 +11,8 @@ from behave import given, then
 from utils.openCheezAI import openCheezAICaller
 
 _LOGGER = logging.getLogger('test')
-logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
-_LOGGER.setLevel(logging.DEBUG)
+logging.basicConfig(filename='debug.log', filemode='w', level=logging.WARN)
+_LOGGER.setLevel(logging.WARN)
 
 @given(u"person {uin} is reset in openCheezAI")
 def reset_person(context, uin):

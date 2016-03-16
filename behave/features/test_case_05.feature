@@ -1,15 +1,15 @@
-Feature: Test Case 03 
+Feature: getNetIDForUINAL
 
-	Scenario: Test Case 03: User NOT in CR, in EAS at uillinois only
+#================
+    Scenario: Test Case 05: User NOT in CR, in EAS with different NetID at uic and uillinois
 
 	# Setup: Add person upstream (openCheezAI)
         Given person 111111111 is reset in openCheezAI
 	Given person has openCheezAI attribute values
         | attr                  | value 	|
         # ---------------------------------------
-	| uiuc_netid		|      		|
-	| illinois_netid	|      		|
-	| uillinois_netid	| bobbo		|
+        | uic_netid    	        | bobbo	 	|
+	| uillinois_netid	| robert	|
 	| banner_firstname	| Robert	|
 	| banner_lastname	| Oppenheimer	|
 	| i2s_firstname		| Robert	|
@@ -17,10 +17,9 @@ Feature: Test Case 03
   
 	Given person exists in openCheezAI
 
-	# Setup: Remove person from Central Registry
+	# Setup: Remove person from CentralRegistry
 	Given uin 111111111 does not exist in Central Registry
     	Given user 'bobbo' is reset in Central Registry
-
 
 	# Test: call getNetIDForUINAL
 	When getNetIDForUINAL is called with arguments
@@ -37,7 +36,7 @@ Feature: Test Case 03
 	Then getNetIDForUINAL succeeds with results
         | attr                  	| value 	|
         # -----------------------------------------------
-        | suggestedNetID     		| bobbo	 	|
+        | suggestedNetID     		| robert 	|
         | netIDSource     		| uillinois 	|
         | uinFoundInCentralRegistry     | false	 	|
         | needRegisterAtIllinois        | true	 	|
@@ -47,9 +46,10 @@ Feature: Test Case 03
 	And person 111111111 exists in openCheezAI with attribute values
         | attr                  | value 	|
         # ---------------------------------------
-        | uiuc_netid            | bobbo 	|
-	| illinois_netid	| bobbo		|
-	| uillinois_netid	| bobbo		|
+        | uiuc_netid            | robert 	|
+	| illinois_netid	| robert	|
+	| uillinois_netid	| robert	|
+        | uic_netid	        | bobbo 	|
 	| banner_firstname	| Robert	|
 	| banner_lastname	| Oppenheimer	|
 	| i2s_firstname		| Robert	|

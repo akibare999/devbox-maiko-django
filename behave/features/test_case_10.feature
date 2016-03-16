@@ -1,9 +1,10 @@
-Feature: getNetIDForUINAL
+Feature: Test Case 10 (ERROR CASE)
 
-#================
-    Scenario: Test Case 01: User in CR, in EAS with same NetID at UIUC and enterprise
+    Scenario: User in CR with NetID XXX, in EAS at uiuc/illinois with DIFFERENT NetID YYY (contrived)
 
-	# Setup: Add person upstream (openCheezAI)
+    	# Someone changed the user's NetID in CR only and didn't tell EAS
+
+	# Setup: Add person upstream (openCheezAI) with a NetID
         Given person 111111111 is reset in openCheezAI
 	Given person has openCheezAI attribute values
         | attr                  | value 	|
@@ -18,8 +19,8 @@ Feature: getNetIDForUINAL
   
 	Given person exists in openCheezAI
 
-	# Setup: Add person to CentralRegistry
-    	Given user 'bobbo' is reset in Central Registry
+	# Setup: Add person to CentralRegistry with different NetID
+    	Given user 'robert' is reset in Central Registry
 	Given user has uiucEduUIN set to 111111111
 	Given user has uiucEduFirstName set to Robert
 	Given user has uiucEduLastName set to Oppenheimer
@@ -27,6 +28,8 @@ Feature: getNetIDForUINAL
 	Given user has phone in uiucEduType
 	Given user has student in uiucEduType
 	Given user exists in Central Registry
+
+    	Given user 'bobbo' is reset in Central Registry
 
 	# Test: call getNetIDForUINAL
 	When getNetIDForUINAL is called with arguments
@@ -37,26 +40,8 @@ Feature: getNetIDForUINAL
 	| middleName		| X		|
 	| lastName		| Oppenheimer	|
 	| type			| S		|
+        | createNetIDIfNotFound | true	        |
 	| testMode		| false		|
 
-	Then getNetIDForUINAL succeeds with results
-        | attr                  	| value 	|
-        # -----------------------------------------------
-        | suggestedNetID     		| bobbo	 	|
-        | netIDSource     		| illinois 	|
-        | uinFoundInCentralRegistry     | true	 	|
-        | needRegisterAtIllinois        | false	 	|
-        | needRegisterAtUIUC            | false	 	|
-        | needRegisterAtUillinois       | false	 	|
-
-	And person 111111111 exists in openCheezAI with attribute values
-        | attr                  | value 	|
-        # ---------------------------------------
-        | uiuc_netid            | bobbo 	|
-	| illinois_netid	| bobbo		|
-	| uillinois_netid	| robert	|
-	| banner_firstname	| Robert	|
-	| banner_lastname	| Oppenheimer	|
-	| i2s_firstname		| Robert	|
-	| i2s_lastname		| Oppenheimer	|
+	Then getNetIDForUINAL fails with error code 402
 

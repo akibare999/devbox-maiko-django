@@ -36,6 +36,7 @@ Feature: Test Case 01
 	| middleName		| X		|
 	| lastName		| Oppenheimer	|
 	| type			| S		|
+        | createNetIDIfNotFound | true	        |
 	| testMode		| false		|
 
 	Then getNetIDForUINAL succeeds with results

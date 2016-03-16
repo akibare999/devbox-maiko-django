@@ -6,7 +6,7 @@ from ConfigParser import RawConfigParser
 # Setup Logging 
 # ===================
 _LOGGER = logging.getLogger("test")
-_LOGGER.setLevel(logging.DEBUG)
+_LOGGER.setLevel(logging.WARN)
 _LOGGER.addHandler(logging.StreamHandler())
 
 _SETTINGS_LOCATION = os.path.dirname(os.path.abspath(__file__))
