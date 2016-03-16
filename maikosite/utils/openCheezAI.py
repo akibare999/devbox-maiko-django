@@ -4,19 +4,6 @@ import logging
 class openCheezAICaller:
 
     API_BASE_URL = 'https://devbox-maiko.cites.illinois.edu/openCheezAI/'
-    BLANK_PERSON_DICT = {
-        'uin': '', 
-        'uiuc_netid': '', 
-        'illinois_netid': '', 
-        'uillinois_netid': '', 
-        'uic_netid': '', 
-        'uis_netid': '',
-        'i2s_firstname': '', 
-        'i2s_lastname': '', 
-        'banner_firstname': '', 
-        'banner_lastname': '', 
-        'banner_suppressed': False,
-    }
 
     # IMPLEMENT:
     # GET single
@@ -33,7 +20,20 @@ class openCheezAICaller:
         '''
         Get a "default" blank person with no fields set
         '''
-        return self.BLANK_PERSON_DICT
+        blank_person = {
+            'uin': '', 
+            'uiuc_netid': '', 
+            'illinois_netid': '', 
+            'uillinois_netid': '', 
+            'uic_netid': '', 
+            'uis_netid': '',
+            'i2s_firstname': '', 
+            'i2s_lastname': '', 
+            'banner_firstname': '', 
+            'banner_lastname': '', 
+            'banner_suppressed': False,
+        }
+        return blank_person
 
     def get_person_by_uin(self, uin):
         '''
@@ -65,7 +65,7 @@ class openCheezAICaller:
         '''
         url = self.API_BASE_URL + 'persons/' 
         person_dict['uin'] = uin
-        json_body = self.BLANK_PERSON_DICT
+        json_body = self.get_blank_person_template()
         json_body.update(person_dict)
         resp = requests.post(url, json=json_body)
         resp.raise_for_status()
