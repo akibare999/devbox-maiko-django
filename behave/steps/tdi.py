@@ -7,7 +7,7 @@ FILE_DIR = os.path.dirname(__file__)
 PROJECT_ROOT_DIR = os.path.join(FILE_DIR, '../../maikosite')
 sys.path.insert(0, PROJECT_ROOT_DIR)
 
-from behave import given, then
+from behave import given, when, then
 from utils.openCheezAI import openCheezAICaller
 import requests
 from requests.auth import HTTPBasicAuth
@@ -21,6 +21,8 @@ _LOGGER.setLevel(logging.DEBUG)
 def _call_getNetIDForUINAL(querystring_hash):
     '''
     Calls getNetIDForUINAL with the querystring arguments given in the hash.
+    Returns a hash of returned values.
+    Extra key "status" is populated with "success" or "error"
     '''
 
     #Hardcoded configuration for calling CDUS right now
@@ -39,6 +41,7 @@ def _call_getNetIDForUINAL(querystring_hash):
 
     if root.tag == 'getNetIDForUIN':
         return { 
+          'status' : 'success',
           'suggestedNetID' : root.findtext('suggestedNetID'),
           'netIDSource' : root.findtext('netIDSource'),
           'uinFoundInCentralRegistry' : root.findtext('uinFoundInCentralRegistry'),
@@ -49,6 +52,7 @@ def _call_getNetIDForUINAL(querystring_hash):
 
     elif root.tag == 'error':
         return { 
+            'status' : 'error',
             'code' : root.findtext('code'),
             'string' : root.findtext('string'),
             'detail' : root.findtext('detail'),
@@ -56,31 +60,38 @@ def _call_getNetIDForUINAL(querystring_hash):
     return {}
 
 
-### MAIN ###
+@when(u"getNetIDForUINAL is called with arguments")
+def call_getNetIDForUINAL(context):
+    query_string_hash = {}
+    for row in context.table:
+        attr = row['attr']
+        value = row['value']
+        query_string_hash[attr] = value
 
-qsh = { 'firstName':'Jon', 
-        'lastName':'Roma', 
-        'uin':'652974446',
-      }
+    results = _call_getNetIDForUINAL(query_string_hash)
+    context.getNetIDForUINAL_results = results
 
-results = _call_getNetIDForUINAL(qsh)
+     
+@then(u'getNetIDForUINAL succeeds with results')
+def confirm_getNetIDForUINAL_success_result(context):
+    # get results off context 
+    results = context.getNetIDForUINAL_results
+    
+    # check attributes of result
+    assert results['status'] == 'success', 'getNetIDForUINAL returned success.'
+    for row in context.table:
+        attr = row['attr']
+        value = row['value']
+        assert (results[attr] == value), "%s == %s" % (attr, value)
 
-print "Results for Jon:"
-print "---------------------------------------------------------------------"
-for key in results:
-    print "%s ===> %s" % (key, results[key])
-print "---------------------------------------------------------------------"
-print
 
-qsh = { 'firstName':'Jon', 
-        'lastName':'Roma', 
-      }
 
-results = _call_getNetIDForUINAL(qsh)
+@then(u'getNetIDForUINAL fails with error code {code}')
+def confirm_getNetIDForUINAL_error_result(context, code):
+    # get results off context 
+    results = context.getNetIDForUINAL_results
 
-print "Error for missing UIN:"
-print "---------------------------------------------------------------------"
-for key in results:
-    print "%s ===> %s" % (key, results[key])
-print "---------------------------------------------------------------------"
+    # check attributes of result
+    assert results['status'] == 'error', 'getNetIDForUINAL returned error.'
+    assert results['code'] == code, "Error code was %s" % code
 
