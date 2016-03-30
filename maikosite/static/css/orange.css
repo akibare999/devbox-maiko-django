@@ -47,6 +47,10 @@ ul.bullet {
     list-style-type: disc;
     padding-left: 20px;
 }
+li {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
 .formbox {
     background-color: #ffcc99;
     border: 1px solid #ff6600;
@@ -76,4 +80,12 @@ td.frink {
 th.frink {
     border: 1px solid #ff6600;
     padding: 3px;
+}
+a {
+    text-decoration: none;
+    color: rgb(0, 85, 128);
+}
+a:hover {
+    text-decoration: underline;
+    color: rgb(0, 85, 128);
 }
