@@ -163,6 +163,7 @@ class SoapHandlerView(View):
                     p = Person.objects.get(uin=uin)
                     local_context = {}
                     # TODO: Add banner_middlename to Person model
+                    local_context['uin'] = p.uin
                     local_context['banner_middlename'] = 'X'
                     local_context['banner_firstname'] = p.banner_firstname
                     local_context['banner_lastname'] = p.banner_lastname
@@ -188,6 +189,7 @@ class SoapHandlerView(View):
                 try:
                     p = Person.objects.get(uin=uin)
                     local_context = {}
+                    local_context['uin'] = p.uin
                     # TODO: Add i2s_middlename to Person model
                     local_context['i2s_middlename'] = 'X'
                     local_context['i2s_firstname'] = p.banner_firstname
