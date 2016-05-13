@@ -28,7 +28,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '9^)i10d$929!+@-2w@or1^+%-o*y)d%dwf!2te4$glvqi-ek&h'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 SERVER_NAME = socket.getfqdn()
 ALLOWED_HOSTS = [SERVER_NAME]
